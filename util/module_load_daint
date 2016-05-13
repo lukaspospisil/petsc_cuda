@@ -1,0 +1,16 @@
+#
+# this script loads the right modules on CSCS DAINT machine
+#
+
+module switch PrgEnv-cray/5.2.82 PrgEnv-gnu
+module load cmake
+module load cray-mpich
+
+# we need the petsc module
+module load cray-petsc
+
+# maybe also CUDA stuff?
+#module load boost
+#module load cudatoolkit
+#module load craype-accel-nvidia35
+
