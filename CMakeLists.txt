@@ -15,7 +15,7 @@ option(FIND_PETSC "FIND_PETSC" OFF)
 if(${FIND_PETSC})
 	# magic function from Jed Brown
 	find_package(PETSc)
-	set(CMAKE_CXX_COMPILER "mpicxx")
+#	set(CMAKE_CXX_COMPILER "mpicxx")
 endif()
 
 # give some info about Petsc
