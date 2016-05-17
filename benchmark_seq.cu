@@ -170,7 +170,7 @@ int main( int argc, char *argv[] )
 	TRY( VecGetArray(x_local,&x_local_arr) );
 
 #ifdef USE_CUDA
-	this_is_kernel<<<Tlocal, 1>>>(x_local_arr,Tlocal,n);
+	this_is_kernel<<<T_local, 1>>>(x_local_arr,T_local,n);
 #else
 	/* in this seq implementation "i" denotes the index of the kernel */
 	for(i = 0; i < T_local; i++){

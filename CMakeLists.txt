@@ -24,7 +24,7 @@ endif()
 # give some info about Petsc
 message(STATUS "CMAKE_CXX_COMPILER = ${CMAKE_CXX_COMPILER}")
 message(STATUS "PETSC_DIR = $ENV{PETSC_DIR}")
-message(STATUS "PETSC_ARCH = $ENV{PETSC_DIR}")
+message(STATUS "PETSC_ARCH = $ENV{PETSC_ARCH}")
 message(STATUS "PETSC_INCLUDES = ${PETSC_INCLUDES}")
 message(STATUS "PETSC_LIBRARIES = ${PETSC_LIBRARIES}")
 message(STATUS "FIND_PETSC = ${FIND_PETSC}")
@@ -53,7 +53,7 @@ if(${BENCHMARK_SEQ})
 		cuda_add_executable(benchmark_seq benchmark_seq.cu
 			OPTIONS "-arch=sm_35 --compiler-options \"${CUDA_CXX_FLAGS}\""
 			DEBUG ${CMAKE_CXX_FLAGS_DEBUG})
-		target_link_libraries(benchmark_seq ${PETSC_LIBRARIES} cublas)
+		target_link_libraries(benchmark_seq ${PETSC_LIBRARIES})
 	else ()
 		# compile using standart c++ compiler
 		add_executable(benchmark_seq benchmark_seq.cpp)

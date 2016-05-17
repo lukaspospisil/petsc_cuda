@@ -1,9 +1,9 @@
 #ifndef THISISKERNEL_H
-#define	THISISKERNEL_H
+#define THISISKERNEL_H
 
-__device__ void device_sort_bubble(double *x, int n);
+__device__ void device_sort_bubble(double *x, int n){
 	int i;
-	int m = n;
+	int m=n;
 	int mnew;
 	double swap;
 
@@ -18,9 +18,9 @@ __device__ void device_sort_bubble(double *x, int n);
 				x[i-1] = swap;
 				mnew = i;
 			}
-        }
+	        }
 		m = mnew;
-    }
+	}
 }
 
 /* this is a kernel function which computes a projection of a point onto simplex in nD

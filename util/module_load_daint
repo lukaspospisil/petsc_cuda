@@ -15,3 +15,6 @@ module load boost
 module load cudatoolkit
 module load craype-accel-nvidia35
 
+#some funny modules which I will probably use in the future in our project
+module load cray-netcdf-hdf5parallel
+module load cray-hdf5-parallel
