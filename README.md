@@ -13,7 +13,7 @@ cd dir
 cmake ..
 ```
 - call `make` to compile what you want to compile
-- there is `batch` folder with sample batch files for SLURM on Piz Daint, use & enjoy them!
+- there is `batch` folder with sample batch files for SLURM on Piz Daint, use & enjoy them! Just be sure that you edit them and set right paths to set-set-modules-files
 
 
 
