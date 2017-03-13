@@ -1,0 +1,9 @@
+#
+# this script loads the right modules on CSCS DAINT machine
+# (standard "CPU" compilation)
+#
+
+module load daint-mc
+module load gcc
+module load cray-mpich
+module load cray-petsc

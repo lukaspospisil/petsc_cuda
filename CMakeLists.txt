@@ -3,6 +3,9 @@
 # -DFIND_PETSC=ON			-> use functions from Jed Brown to set Petsc variables (turn off if using Petsc from modules)
 # -DUSE_CUDA=ON				-> compile with GPU
 #
+# on my computer (because I am compiler-lama), I am compiling with
+# cmake -DFIND_PETSC=ON -DCMAKE_CXX_COMPILER=/usr/bin/mpicxx ..
+#
 
 project(PETSC_CUDA_TEST)
 cmake_minimum_required(VERSION 2.8)
