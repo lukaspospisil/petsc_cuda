@@ -10,7 +10,6 @@
 project(PETSC_CUDA_TEST)
 cmake_minimum_required(VERSION 2.8)
 
-option(BENCHMARK_SEQ "BENCHMARK_SEQ" ON)
 option(FIND_PETSC "FIND_PETSC" ON)
 option(USE_CUDA "USE_CUDA" OFF)
 
@@ -33,7 +32,6 @@ message(STATUS "PETSC_LIBRARIES = ${PETSC_LIBRARIES}")
 message(STATUS "FIND_PETSC = ${FIND_PETSC}")
 message(STATUS "USE_CUDA = ${USE_CUDA}")
 
-
 # PETSc: include petsc stuff
 include_directories(${PETSC_INCLUDES})
 
@@ -50,11 +48,36 @@ if(${USE_CUDA})
 	set(CUDA_CXX_FLAGS "${CUDA_CXX_FLAGS} -DUSE_CUDA")
 endif()
 
+# for simple print ON/OF
+macro(PRINT value)
+ message("${value}")
+endmacro()
+
+macro(PRINTINFO_ONOFF name value)
+	if(${value})
+		message(" ${ColourReset}${name} : ${Green}${value}${Yellow}${ColourReset}")
+	else()
+		message(" ${ColourReset}${name} : ${Red}${value}${Yellow}${ColourReset}")
+	endif()
+endmacro()
+
+
+# ---------------------- MY BENCHMARKS -----------------------
+print("\nThe list of my benchmarks:")
+
+# copy sample batchscripts
+make_directory("batch")
+make_directory("batch_out")
+file(COPY "batch/" DESTINATION "batch" FILES_MATCHING PATTERN "*")
+
+
+option(BENCHMARK_SEQ "BENCHMARK_SEQ" OFF)
+printinfo_onoff(" BENCHMARK_SEQ                   " "${BENCHMARK_SEQ}")
 if(${BENCHMARK_SEQ})
 	if(${USE_CUDA})
 		# compile using cuda compiler
 		cuda_add_executable(benchmark_seq benchmark_seq.cu
-			OPTIONS "-arch=sm_35 --compiler-options \"${CUDA_CXX_FLAGS}\""
+			OPTIONS "-arch=sm_60 --compiler-options \"${CUDA_CXX_FLAGS}\""
 			DEBUG ${CMAKE_CXX_FLAGS_DEBUG})
 		target_link_libraries(benchmark_seq ${PETSC_LIBRARIES})
 	else ()
@@ -63,3 +86,22 @@ if(${BENCHMARK_SEQ})
 		target_link_libraries(benchmark_seq ${PETSC_LIBRARIES})
 	endif ()
 endif()
+
+option(BENCHMARK_MDOT "BENCHMARK_MDOT" OFF)
+printinfo_onoff(" BENCHMARK_MDOT                  " "${BENCHMARK_MDOT}")
+if(${BENCHMARK_MDOT})
+	if(${USE_CUDA})
+		# compile using cuda compiler
+		cuda_add_executable(benchmark_mdot benchmark_mdot.cu
+			OPTIONS "-arch=sm_60 --compiler-options \"${CUDA_CXX_FLAGS}\""
+			DEBUG ${CMAKE_CXX_FLAGS_DEBUG})
+		target_link_libraries(benchmark_mdot ${PETSC_LIBRARIES})
+	else ()
+		# compile using standart c++ compiler
+		add_executable(benchmark_mdot benchmark_mdot.cpp)
+		target_link_libraries(benchmark_mdot ${PETSC_LIBRARIES})
+	endif ()
+endif()
+
+
+
