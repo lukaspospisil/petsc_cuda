@@ -2,7 +2,10 @@ Simple benchmarks for PETSc framework
 (especially for comparing operations performed by CPU/GPU on Piz Daint supercomputer)
 
 How to compile:
-- load right modules (i.e. set PETSC_DIR, PETSC_ARCH, ...), on Piz Daint using `source util/module_load_daint_*`
+- load right modules (i.e. set PETSC_DIR, PETSC_ARCH, ...), on Piz Daint using 
+```
+source util/module_load_daint_*
+```
 - prepare build directory and call cmake 
 ```
 mkdir build
