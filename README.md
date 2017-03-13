@@ -12,6 +12,7 @@ mkdir build
 cd dir
 cmake ..
 ```
+(of course, on Piz Daint, create `build` folder in `$SCRATCH` and call `cmake ~/soft/petsc_cuda/` or something similar)
 - call `make` to compile what you want to compile
 - there is `batch` folder with sample batch files for SLURM on Piz Daint, use & enjoy them! Just be sure that you edit them and set right paths to set-set-modules-files
 
