@@ -78,11 +78,13 @@ void compute_mdot(int n, int ntrials, int m, Vec *Mdots_vec, double *Mdots_val) 
 	ierr = PetscPrintf(PETSC_COMM_WORLD,"\n\n"); CHKERRV(ierr);
 }
 
+
+
 int main( int argc, char *argv[] )
 {
 	/* problem dimensions */
 	int n = 1e7; /* length of vectors */
-	int ntrials = 1e2; /* number of trials (to provide average time) */
+	int ntrials = 1e4; /* number of trials (to provide average time) */
 	int m = 5; /* number of dot-products (I am computing <v1,v1>, <v1,v2>, <v1,v3>, ... <v1,vm>) */
 	
 	PetscErrorCode ierr; /* PETSc error */
@@ -150,11 +152,14 @@ int main( int argc, char *argv[] )
 
 /* ensure that everything is on GPU */
 	ierr = PetscPrintf(PETSC_COMM_WORLD,"### TRANSFER PROBLEM TO GPU: "); CHKERRQ(ierr);
-#ifdef USE_GPU
+#ifdef USE_CUDA
 	ierr = PetscPrintf(PETSC_COMM_WORLD,"YES (because USE_CUDA=ON)\n"); CHKERRQ(ierr);
+	mytimer.start();
 	for(int i=0;i<m;i++){
 		ierr = VecCUDACopyToGPU(Mdots_vec[i]); CHKERRQ(ierr);
 	}
+	mytimer.stop();
+	ierr = PetscPrintf(PETSC_COMM_WORLD,"- problem transfered in: %f s\n",mytimer.get_value_last()); CHKERRQ(ierr);
 #else
 	ierr = PetscPrintf(PETSC_COMM_WORLD,"NO (because USE_CUDA=OFF)\n"); CHKERRQ(ierr);
 #endif
