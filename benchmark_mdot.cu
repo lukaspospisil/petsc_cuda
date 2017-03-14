@@ -11,6 +11,9 @@
 /* I used this for testing purposes - to print content of vectors - to see that everything is OK */
 #define PRINT_VECTOR_CONTENT 0
 
+#ifdef USE_CUDA
+	#include <../src/vec/vec/impls/seq/seqcuda/cudavecimpl.h>
+#endif
 
 void say_hello() {
 	PetscErrorCode ierr;
