@@ -11,12 +11,80 @@
 /* I used this for testing purposes - to print content of vectors - to see that everything is OK */
 #define PRINT_VECTOR_CONTENT 0
 
+
+void say_hello() {
+	PetscErrorCode ierr;
+
+	/* give info about MPI */
+	int size, rank; /* size and rank of communicator */
+	MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+	MPI_Comm_size(MPI_COMM_WORLD, &size);
+
+	/* Hello world! */
+	ierr = PetscPrintf(PETSC_COMM_WORLD,"- number of processors: %d\n",size); CHKERRV(ierr);
+	ierr = PetscSynchronizedPrintf(PETSC_COMM_WORLD," - hello from rank: %d\n",rank); CHKERRV(ierr);
+	ierr = PetscSynchronizedFlush(PETSC_COMM_WORLD,NULL); CHKERRV(ierr);
+	ierr = PetscPrintf(PETSC_COMM_WORLD,"-------------------------------\n"); CHKERRV(ierr);
+		
+}
+
+void compute_dots(int n, int ntrials, int m, Vec *Mdots_vec, double *Mdots_val) {
+	PetscErrorCode ierr;
+
+	Timer mytimer;
+	mytimer.restart();
+
+	ierr = PetscPrintf(PETSC_COMM_WORLD,"### %d dot products\n", m); CHKERRV(ierr);
+
+	/* compute one dot product after another ("sequentially") */
+	double dot_result;
+	mytimer.start();
+	for(int itrial=0;itrial<ntrials;itrial++){
+		for(int i=0;i<m;i++){
+			ierr = VecDot( Mdots_vec[0], Mdots_vec[i], &(Mdots_val[i])); CHKERRV(ierr);
+		}
+	}
+	mytimer.stop();
+
+	ierr = PetscPrintf(PETSC_COMM_WORLD,"- total sequential time : %f s\n", mytimer.get_value_last()); CHKERRV(ierr);
+	ierr = PetscPrintf(PETSC_COMM_WORLD,"- avg.  sequential time : %f s\n", mytimer.get_value_last()/(double)ntrials); CHKERRV(ierr);
+	ierr = PetscPrintf(PETSC_COMM_WORLD,"- results control       : " ); CHKERRV(ierr);
+	for(int i=0;i<m;i++){
+		ierr = PetscPrintf(PETSC_COMM_WORLD,"%f, ", Mdots_val[i]/(double)n); CHKERRV(ierr);
+	}
+	ierr = PetscPrintf(PETSC_COMM_WORLD,"\n\n"); CHKERRV(ierr);
+}
+
+void compute_mdot(int n, int ntrials, int m, Vec *Mdots_vec, double *Mdots_val) {
+	PetscErrorCode ierr;
+
+	Timer mytimer;
+	mytimer.restart();
+
+	ierr = PetscPrintf(PETSC_COMM_WORLD,"### multiple %d dot-product\n", m); CHKERRV(ierr);
+
+	/* compute multiple dot products ("one shot") */
+	mytimer.start();
+	for(int itrial=0;itrial<ntrials;itrial++){
+		ierr = VecMDot( Mdots_vec[0], m, Mdots_vec, Mdots_val); CHKERRV(ierr);
+	}
+	mytimer.stop();
+
+	ierr = PetscPrintf(PETSC_COMM_WORLD,"- total sequential time : %f s\n", mytimer.get_value_last()); CHKERRV(ierr);
+	ierr = PetscPrintf(PETSC_COMM_WORLD,"- avg.  sequential time : %f s\n", mytimer.get_value_last()/(double)ntrials); CHKERRV(ierr);
+	ierr = PetscPrintf(PETSC_COMM_WORLD,"- results control       : " ); CHKERRV(ierr);
+	for(int i=0;i<m;i++){
+		ierr = PetscPrintf(PETSC_COMM_WORLD,"%f, ", Mdots_val[i]/(double)n); CHKERRV(ierr);
+	}
+	ierr = PetscPrintf(PETSC_COMM_WORLD,"\n\n"); CHKERRV(ierr);
+}
+
 int main( int argc, char *argv[] )
 {
 	/* problem dimensions */
-	int n = 10; /* length of vectors */
-	int ntrials = 10; /* number of trials (to provide average time) */
-	int m = 3; /* number of dot-products (I am computing <v1,v1>, <v1,v2>, <v1,v3>, ... <v1,vm>) */
+	int n = 1e7; /* length of vectors */
+	int ntrials = 1e2; /* number of trials (to provide average time) */
+	int m = 5; /* number of dot-products (I am computing <v1,v1>, <v1,v2>, <v1,v3>, ... <v1,vm>) */
 	
 	PetscErrorCode ierr; /* PETSc error */
 	
@@ -31,27 +99,14 @@ int main( int argc, char *argv[] )
 	ierr = PetscPrintf(PETSC_COMM_WORLD,"-------------------------------\n"); CHKERRQ(ierr);
 	
 /* SAY HELLO TO WORLD - to check if everything is working */
-	
-	/* give info about MPI */
-	int size, rank; /* size and rank of communicator */
-	MPI_Comm_rank(MPI_COMM_WORLD, &rank);
-	MPI_Comm_size(MPI_COMM_WORLD, &size);
-
-	/* Hello world! */
 	if(SAY_HELLO){
-		ierr = PetscPrintf(MPI_COMM_WORLD,"- number of processors: %d\n",size); CHKERRQ(ierr);
-		ierr = PetscSynchronizedPrintf(MPI_COMM_WORLD," - hello from rank: %d\n",rank); CHKERRQ(ierr);
-		ierr = PetscSynchronizedFlush(MPI_COMM_WORLD,NULL); CHKERRQ(ierr);
-		ierr = PetscPrintf(PETSC_COMM_WORLD,"-------------------------------\n"); CHKERRQ(ierr);
+		say_hello();
 	}
 
-	/* timers */
 	Timer mytimer;
 	mytimer.restart();
-
-/* CREATE GLOBAL VECTOR */
 	mytimer.start();
-	
+
 	/* create first vector v1 (all other will have the same layout) */
 	Vec v1;
 	ierr = VecCreate(PETSC_COMM_WORLD,&v1); CHKERRQ(ierr);
@@ -88,45 +143,30 @@ int main( int argc, char *argv[] )
 		}
 	}
 
-/* COMPUTE DOT PRODUCTS */
+/* COMPUTE SEQUENTIALLY DOT PRODUCTS */
+	compute_dots(n, ntrials, m, Mdots_vec, Mdots_val);
 
-	/* compute one dot product after another ("sequentially") */
-	double dot_result;
-	mytimer.start();
-	for(int itrial=0;itrial<ntrials;itrial++){
-		for(int i=0;i<m;i++){
-			ierr = VecDot( Mdots_vec[0], Mdots_vec[i], &(Mdots_val[i])); CHKERRQ(ierr);
-		}
-	}
-	mytimer.stop();
+/* COMPUTE MULTIPLE DOT PRODUCTS */
+	compute_mdot(n, ntrials, m, Mdots_vec, Mdots_val);
 
-	ierr = PetscPrintf(PETSC_COMM_WORLD,"- total sequential time : %f s\n", mytimer.get_value_last()); CHKERRQ(ierr);
-	ierr = PetscPrintf(PETSC_COMM_WORLD,"- avg.  sequential time : %f s\n", mytimer.get_value_last()/(double)ntrials); CHKERRQ(ierr);
-	ierr = PetscPrintf(PETSC_COMM_WORLD,"- results control       : " ); CHKERRQ(ierr);
+/* ensure that everything is on GPU */
+	ierr = PetscPrintf(PETSC_COMM_WORLD,"### TRANSFER PROBLEM TO GPU: "); CHKERRQ(ierr);
+#ifdef USE_GPU
+	ierr = PetscPrintf(PETSC_COMM_WORLD,"YES (because USE_CUDA=ON)\n"); CHKERRQ(ierr);
 	for(int i=0;i<m;i++){
-		ierr = PetscPrintf(PETSC_COMM_WORLD,"%f, ", Mdots_val[i]/(double)n); CHKERRQ(ierr);
+		ierr = VecCUDACopyToGPU(Mdots_vec[i]); CHKERRQ(ierr);
 	}
-	ierr = PetscPrintf(PETSC_COMM_WORLD,"\n\n"); CHKERRQ(ierr);
+#else
+	ierr = PetscPrintf(PETSC_COMM_WORLD,"NO (because USE_CUDA=OFF)\n"); CHKERRQ(ierr);
+#endif
+	ierr = PetscPrintf(PETSC_COMM_WORLD,"\n"); CHKERRQ(ierr);
 
 
+/* COMPUTE SEQUENTIALLY DOT PRODUCTS */
+	compute_dots(n, ntrials, m, Mdots_vec, Mdots_val);
 
-	/* compute multiple dot products ("one shot") */
-	mytimer.start();
-	for(int itrial=0;itrial<ntrials;itrial++){
-		ierr = VecMDot( Mdots_vec[0], m, Mdots_vec, Mdots_val); CHKERRQ(ierr);
-	}
-	mytimer.stop();
-
-	ierr = PetscPrintf(PETSC_COMM_WORLD,"- total sequential time : %f s\n", mytimer.get_value_last()); CHKERRQ(ierr);
-	ierr = PetscPrintf(PETSC_COMM_WORLD,"- avg.  sequential time : %f s\n", mytimer.get_value_last()/(double)ntrials); CHKERRQ(ierr);
-	ierr = PetscPrintf(PETSC_COMM_WORLD,"- results control       : " ); CHKERRQ(ierr);
-	for(int i=0;i<m;i++){
-		ierr = PetscPrintf(PETSC_COMM_WORLD,"%f, ", Mdots_val[i]/(double)n); CHKERRQ(ierr);
-	}
-	ierr = PetscPrintf(PETSC_COMM_WORLD,"\n\n"); CHKERRQ(ierr);
-
-
-
+/* COMPUTE MULTIPLE DOT PRODUCTS */
+	compute_mdot(n, ntrials, m, Mdots_vec, Mdots_val);
 
 	/* finalize Petsc */
 	PetscFinalize();
