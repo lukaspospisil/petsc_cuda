@@ -4,9 +4,11 @@
 #
 
 module load daint-gpu
+module load Boost
 module load cudatoolkit/8.0.44_GA_2.2.7_g4a6c213-2.1
 module load craype-accel-nvidia60
 module load cray-mpich
 
 export PETSC_DIR=/apps/daint/UES/6.0.UP02/sandbox-ws/petsc-maint
 export PETSC_ARCH=arch-gnu-xc30-daint-cuda
+

@@ -36,8 +36,7 @@ void compute_dots(int n, int ntrials, int m, Vec *Mdots_vec, double *Mdots_val) 
 
 	ierr = PetscPrintf(PETSC_COMM_WORLD,"### %d dot products\n", m); CHKERRV(ierr);
 
-	/* compute one dot product after another ("sequentially") */
-	double dot_result;
+	/* compute dot product one after another ("sequentially") */
 	mytimer.start();
 	for(int itrial=0;itrial<ntrials;itrial++){
 		for(int i=0;i<m;i++){
