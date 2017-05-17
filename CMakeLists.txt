@@ -107,4 +107,13 @@ if(${TEST3_LOAD})
 	endif ()
 endif()
 
+option(TEST4_IS "TEST4_IS" OFF)
+printinfo_onoff(" TEST4_IS                    " "${TEST4_IS}")
+if(${TEST4_IS})
+	if(${USE_CUDA})
+		add_executable_cuda(test4_is test4_is.cu)
+	else ()
+		add_executable_cpp(test4_is test4_is.cpp)
+	endif ()
+endif()
 
