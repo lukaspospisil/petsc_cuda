@@ -17,4 +17,4 @@ source ~/soft/petsc_cuda/util/module_load_daint
 export OMP_NUM_THREADS=1
 
 ## run the job (12 MPI per node = 24)
-srun -n 24 ./test4_load > batch_out/test4_cpu2.log
+srun -n 24 ./test4_is > batch_out/test4_cpu2.log

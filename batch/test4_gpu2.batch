@@ -17,4 +17,4 @@ source ~/soft/petsc_cuda/util/module_load_daint_sandbox
 export OMP_NUM_THREADS=1
 
 ## run the job
-srun -n 2 ./test4_load  > batch_out/test4_gpu2.log
+srun -n 2 ./test4_is  > batch_out/test4_gpu2.log
