@@ -1,6 +1,9 @@
 #ifndef CUDA_STUFF_H
 #define	CUDA_STUFF_H
 
+#include <cuda.h>
+#include "petsccuda.h"
+
 /* cuda error check */ 
 #define gpuErrchk(ans) { gpuAssert((ans), __FILE__, __LINE__); }
 inline void gpuAssert(cudaError_t code, const char *file, int line, bool abort=true)
