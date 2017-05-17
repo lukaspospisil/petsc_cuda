@@ -48,8 +48,8 @@ void compute_dots(int n, int ntrials, int m, Vec *Mdots_vec, double *Mdots_val) 
 	}
 	mytimer.stop();
 
-	ierr = PetscPrintf(PETSC_COMM_WORLD,"- total sequential time : %f s\n", mytimer.get_value_last()); CHKERRV(ierr);
-	ierr = PetscPrintf(PETSC_COMM_WORLD,"- avg.  sequential time : %f s\n", mytimer.get_value_last()/(double)ntrials); CHKERRV(ierr);
+	ierr = PetscPrintf(PETSC_COMM_WORLD,"- total time            : %f s\n", mytimer.get_value_last()); CHKERRV(ierr);
+	ierr = PetscPrintf(PETSC_COMM_WORLD,"- avg.  time            : %f s\n", mytimer.get_value_last()/(double)ntrials); CHKERRV(ierr);
 	ierr = PetscPrintf(PETSC_COMM_WORLD,"- results control       : " ); CHKERRV(ierr);
 	for(int i=0;i<m;i++){
 		ierr = PetscPrintf(PETSC_COMM_WORLD,"%f, ", Mdots_val[i]/(double)n); CHKERRV(ierr);
@@ -72,8 +72,8 @@ void compute_mdot(int n, int ntrials, int m, Vec *Mdots_vec, double *Mdots_val) 
 	}
 	mytimer.stop();
 
-	ierr = PetscPrintf(PETSC_COMM_WORLD,"- total sequential time : %f s\n", mytimer.get_value_last()); CHKERRV(ierr);
-	ierr = PetscPrintf(PETSC_COMM_WORLD,"- avg.  sequential time : %f s\n", mytimer.get_value_last()/(double)ntrials); CHKERRV(ierr);
+	ierr = PetscPrintf(PETSC_COMM_WORLD,"- total time            : %f s\n", mytimer.get_value_last()); CHKERRV(ierr);
+	ierr = PetscPrintf(PETSC_COMM_WORLD,"- avg.  time            : %f s\n", mytimer.get_value_last()/(double)ntrials); CHKERRV(ierr);
 	ierr = PetscPrintf(PETSC_COMM_WORLD,"- results control       : " ); CHKERRV(ierr);
 	for(int i=0;i<m;i++){
 		ierr = PetscPrintf(PETSC_COMM_WORLD,"%f, ", Mdots_val[i]/(double)n); CHKERRV(ierr);

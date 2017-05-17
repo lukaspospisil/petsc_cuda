@@ -1,0 +1,20 @@
+#!/bin/bash -l
+
+## sbatch settings
+#SBATCH --nodes=2
+#SBATCH --ntasks-per-node=36
+#SBATCH --ntasks-per-core=1
+#SBATCH --threads-per-core=1
+#SBATCH --time=00:05:00
+#SBATCH --partition=normal
+#SBATCH --output=batch_out/test2_cpu2.%j.o
+#SBATCH --error=batch_out/test2_cpu2.%j.e
+
+## load modules
+source ~/soft/petsc_cuda/util/module_load_daint_mc
+
+## set number of threads
+export OMP_NUM_THREADS=1
+
+## run the job
+srun -n 2 ./test2_mdot > batch_out/test1_cpu2.log

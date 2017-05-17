@@ -1,5 +1,5 @@
 # options:
-# -DBENCHMARK_***=ON 		-> compile benchmark *** 
+# -DTEST*_***=ON 			-> compile test *** 
 # -DFIND_PETSC=ON			-> use functions from Jed Brown to set Petsc variables (turn off if using Petsc from modules)
 # -DUSE_CUDA=ON				-> compile with GPU
 #
@@ -35,7 +35,7 @@ message(STATUS "USE_CUDA = ${USE_CUDA}")
 # PETSc: include petsc stuff
 include_directories(${PETSC_INCLUDES})
 
-# maybe also some CUDA stuff ?? (following code originaly found in MinLin)
+# add some CUDA stuff (following code originaly found in MinLin)
 if(${USE_CUDA})
 	include(FindCUDA)
 	set(CUDA_PROPAGATE_HOST_FLAGS off) # if flags are passed with -Xcompiler, they also affect NVCC which doesn't understand all g++ flags we use
@@ -49,57 +49,51 @@ if(${USE_CUDA})
 endif()
 
 # for simple print ON/OF
-macro(PRINT value)
- message("${value}")
+macro(PRINTINFO_ONOFF name value)
+	message(" ${name} : ${value}")
 endmacro()
 
-macro(PRINTINFO_ONOFF name value)
-	if(${value})
-		message(" ${ColourReset}${name} : ${Green}${value}${Yellow}${ColourReset}")
-	else()
-		message(" ${ColourReset}${name} : ${Red}${value}${Yellow}${ColourReset}")
-	endif()
+macro(ADD_EXECUTABLE_CPP name filename)
+	# compile using standart c++ compiler
+	add_executable(${name} ${filename})
+	target_link_libraries(${name} ${PETSC_LIBRARIES})
+endmacro()
+
+macro(ADD_EXECUTABLE_CUDA name filename)
+	# compile using cuda compiler
+	cuda_add_executable(${name} ${filename}
+		OPTIONS "-arch=sm_60 --compiler-options \"${CUDA_CXX_FLAGS}\""
+			DEBUG ${CMAKE_CXX_FLAGS_DEBUG})
+	target_link_libraries(${name} ${PETSC_LIBRARIES})
 endmacro()
 
 
 # ---------------------- MY BENCHMARKS -----------------------
-print("\nThe list of my benchmarks:")
+message("\nThe list of my tests:")
 
-# copy sample batchscripts
+# copy sample batchscripts for computation oo Piz Daint (i.e. SLURM files)
 make_directory("batch")
 make_directory("batch_out")
 file(COPY "batch/" DESTINATION "batch" FILES_MATCHING PATTERN "*")
 
 
-option(BENCHMARK_SEQ "BENCHMARK_SEQ" OFF)
-printinfo_onoff(" BENCHMARK_SEQ                   " "${BENCHMARK_SEQ}")
-if(${BENCHMARK_SEQ})
+option(TEST1_SUM "TEST1_SUM" OFF)
+printinfo_onoff(" TEST1_SUM                   " "${TEST1_SUM}")
+if(${TEST1_SUM})
 	if(${USE_CUDA})
-		# compile using cuda compiler
-		cuda_add_executable(benchmark_seq benchmark_seq.cu
-			OPTIONS "-arch=sm_60 --compiler-options \"${CUDA_CXX_FLAGS}\""
-			DEBUG ${CMAKE_CXX_FLAGS_DEBUG})
-		target_link_libraries(benchmark_seq ${PETSC_LIBRARIES})
+		add_executable_cuda(test1_sum test1_sum.cu)
 	else ()
-		# compile using standart c++ compiler
-		add_executable(benchmark_seq benchmark_seq.cpp)
-		target_link_libraries(benchmark_seq ${PETSC_LIBRARIES})
+		add_executable_cpp(test1_sum test1_sum.cpp)
 	endif ()
 endif()
 
-option(BENCHMARK_MDOT "BENCHMARK_MDOT" OFF)
-printinfo_onoff(" BENCHMARK_MDOT                  " "${BENCHMARK_MDOT}")
-if(${BENCHMARK_MDOT})
+option(TEST2_MDOT "TEST2_MDOT" OFF)
+printinfo_onoff(" TEST2_MDOT                  " "${TEST2_MDOT}")
+if(${TEST2_MDOT})
 	if(${USE_CUDA})
-		# compile using cuda compiler
-		cuda_add_executable(benchmark_mdot benchmark_mdot.cu
-			OPTIONS "-arch=sm_60 --compiler-options \"${CUDA_CXX_FLAGS}\""
-			DEBUG ${CMAKE_CXX_FLAGS_DEBUG})
-		target_link_libraries(benchmark_mdot ${PETSC_LIBRARIES})
+		add_executable_cuda(test2_mdot test2_mdot.cu)
 	else ()
-		# compile using standart c++ compiler
-		add_executable(benchmark_mdot benchmark_mdot.cpp)
-		target_link_libraries(benchmark_mdot ${PETSC_LIBRARIES})
+		add_executable_cpp(test2_mdot test2_mdot.cpp)
 	endif ()
 endif()
 
