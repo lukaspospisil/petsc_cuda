@@ -101,7 +101,7 @@ int main( int argc, char *argv[] )
 	/* HERE is the question - do I have to call this function to be sure that operations with this vector will be performed on GPU? */
 	#ifdef USE_CUDA
 		/* make sure that we are computing on GPU */
-//		ierr = VecCUDACopyToGPU(y); CHKERRQ(ierr);
+		ierr = VecCUDACopyToGPU(y); CHKERRQ(ierr);
 	#endif	
 	
 	/* compute sum */
