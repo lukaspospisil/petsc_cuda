@@ -87,9 +87,9 @@ int main( int argc, char *argv[] )
 	/* now create some funny index set and make real dummy things */
 	IS myis;
 	Vec xsub;
-	ierr = ISCreateStride(PETSC_COMM_WORLD,1,0,1, &myis); CHKERRQ(ierr);
+	ierr = ISCreateStride(PETSC_COMM_WORLD,n/2.0,rank,2, &myis); CHKERRQ(ierr);
 	ierr = VecGetSubVector(x, myis, &xsub); CHKERRQ(ierr);
-	ierr = VecSet(xsub,2.0); CHKERRQ(ierr); /* yes, no change at all */
+	ierr = VecSet(xsub,2.0); CHKERRQ(ierr); /* 2*orig */
 	ierr = VecRestoreSubVector(x, myis, &xsub); CHKERRQ(ierr);
 	ierr = ISDestroy(&myis); CHKERRQ(ierr);
 	
@@ -100,6 +100,7 @@ int main( int argc, char *argv[] )
 		ierr = VecSum(x,&mysum); CHKERRQ(ierr);
 	}
 	mytimer.stop();
+	theory_sum = 2*n;
 	ierr = PetscPrintf(PETSC_COMM_WORLD,"\n- SUM info: ----------------\n"); CHKERRQ(ierr);
 	ierr = PetscPrintf(PETSC_COMM_WORLD,"- theoretical sum       : %f\n",theory_sum); CHKERRQ(ierr);
 	ierr = PetscPrintf(PETSC_COMM_WORLD,"- computed sum          : %f\n",mysum); CHKERRQ(ierr);
