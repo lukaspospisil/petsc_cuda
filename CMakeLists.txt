@@ -97,5 +97,14 @@ if(${TEST2_MDOT})
 	endif ()
 endif()
 
+option(TEST3_LOAD "TEST2_LOAD" OFF)
+printinfo_onoff(" TEST2_LOAD                  " "${TEST3_LOAD}")
+if(${TEST3_LOAD})
+	if(${USE_CUDA})
+		add_executable_cuda(test3_load test2_load.cu)
+	else ()
+		add_executable_cpp(test2_load test2_load.cpp)
+	endif ()
+endif()
 
 

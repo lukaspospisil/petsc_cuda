@@ -85,7 +85,7 @@ int main( int argc, char *argv[] )
 	int m = M; /* number of dot-products (I am computing <v1,v1>, <v1,v2>, <v1,v3>, ... <v1,vm>) */
 	
 	/* print info about benchmark */
-	ierr = PetscPrintf(PETSC_COMM_WORLD,"This is MDOT benchmark.\n"); CHKERRQ(ierr);
+	ierr = PetscPrintf(PETSC_COMM_WORLD,"This is MDOT test.\n"); CHKERRQ(ierr);
 	ierr = PetscPrintf(PETSC_COMM_WORLD," - n          : %d\t\t(length of vectors)\n",n); CHKERRQ(ierr);
 	ierr = PetscPrintf(PETSC_COMM_WORLD," - ntrials    : %d\t\t(number of trials)\n",ntrials); CHKERRQ(ierr);
 	ierr = PetscPrintf(PETSC_COMM_WORLD," - m          : %d\t\t(number of dot-products)\n",m); CHKERRQ(ierr);
@@ -95,7 +95,7 @@ int main( int argc, char *argv[] )
 	mytimer.restart();
 	mytimer.start();
 
-	/* create first vector v1 (all other will have the same layout) */
+	/* create first vector x1 (all other will have the same layout) */
 	Vec x1;
 	ierr = VecCreate(PETSC_COMM_WORLD,&x1); CHKERRQ(ierr);
 	ierr = VecSetSizes(x1,PETSC_DECIDE,n); CHKERRQ(ierr);
@@ -132,28 +132,6 @@ int main( int argc, char *argv[] )
 			ierr = VecView(Mdots_vec[i], PETSC_VIEWER_STDOUT_WORLD); CHKERRQ(ierr);
 		}
 	}
-
-/* COMPUTE SEQUENTIALLY DOT PRODUCTS */
-	compute_dots(n, ntrials, m, Mdots_vec, Mdots_val);
-
-/* COMPUTE MULTIPLE DOT PRODUCTS */
-	compute_mdot(n, ntrials, m, Mdots_vec, Mdots_val);
-
-/* ensure that everything is on GPU */
-	ierr = PetscPrintf(PETSC_COMM_WORLD,"### TRANSFER PROBLEM TO GPU: "); CHKERRQ(ierr);
-#ifdef USE_CUDA
-	ierr = PetscPrintf(PETSC_COMM_WORLD,"YES (because USE_CUDA=ON)\n"); CHKERRQ(ierr);
-	mytimer.start();
-	for(int i=0;i<m;i++){
-		ierr = VecCUDACopyToGPU(Mdots_vec[i]); CHKERRQ(ierr);
-	}
-	mytimer.stop();
-	ierr = PetscPrintf(PETSC_COMM_WORLD,"- problem transfered in: %f s\n",mytimer.get_value_last()); CHKERRQ(ierr);
-#else
-	ierr = PetscPrintf(PETSC_COMM_WORLD,"NO (because USE_CUDA=OFF)\n"); CHKERRQ(ierr);
-#endif
-	ierr = PetscPrintf(PETSC_COMM_WORLD,"\n"); CHKERRQ(ierr);
-
 
 /* COMPUTE SEQUENTIALLY DOT PRODUCTS */
 	compute_dots(n, ntrials, m, Mdots_vec, Mdots_val);

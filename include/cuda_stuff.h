@@ -2,8 +2,8 @@
 #define	CUDA_STUFF_H
 
 #include <cuda.h>
-#include "petsccuda.h"
-#include <../src/vec/vec/impls/seq/seqcuda/cudavecimpl.h>
+#include "petsccuda.h"											/* VecCUDAGetArrayReadWrite */
+#include <../src/vec/vec/impls/seq/seqcuda/cudavecimpl.h>		/* VecCUDACopyToGPU */
 
 /* cuda error check */ 
 #define gpuErrchk(ans) { gpuAssert((ans), __FILE__, __LINE__); }
