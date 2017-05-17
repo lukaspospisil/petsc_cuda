@@ -89,7 +89,7 @@ int main( int argc, char *argv[] )
 	Vec xsub;
 	ierr = ISCreateStride(PETSC_COMM_WORLD,1,0,1, &myis); CHKERRQ(ierr);
 	ierr = VecGetSubVector(x, myis, &xsub); CHKERRQ(ierr);
-	ierr = VecSet(xsub,1.0); CHKERRQ(ierr); /* yes, no change at all */
+	ierr = VecSet(xsub,2.0); CHKERRQ(ierr); /* yes, no change at all */
 	ierr = VecRestoreSubVector(x, myis, &xsub); CHKERRQ(ierr);
 	ierr = ISDestroy(&myis); CHKERRQ(ierr);
 	
