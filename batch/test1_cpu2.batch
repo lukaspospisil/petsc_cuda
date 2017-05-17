@@ -11,7 +11,8 @@
 #SBATCH --error=batch_out/test1_cpu2.%j.e
 
 ## load modules
-source ~/soft/petsc_cuda/util/module_load_daint_mc
+source ~/soft/petsc_cuda/util/module_load_daint
+#source ~/soft/petsc_cuda/util/module_load_daint_sandbox
 
 ## set number of threads
 export OMP_NUM_THREADS=1

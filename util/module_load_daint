@@ -3,7 +3,7 @@
 # (standard "CPU" compilation)
 #
 
-module load daint-mc
+module load daint-gpu
 module load gcc
 module load cray-mpich
 module load cray-petsc
