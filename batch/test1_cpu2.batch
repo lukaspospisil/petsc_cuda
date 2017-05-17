@@ -7,8 +7,8 @@
 #SBATCH --threads-per-core=1
 #SBATCH --time=00:05:00
 #SBATCH --partition=normal
-#SBATCH --output=batch_out/test2_cpu2.%j.o
-#SBATCH --error=batch_out/test2_cpu2.%j.e
+#SBATCH --output=batch_out/test1_cpu2.%j.o
+#SBATCH --error=batch_out/test1_cpu2.%j.e
 
 ## load modules
 source ~/soft/petsc_cuda/util/module_load_daint_mc

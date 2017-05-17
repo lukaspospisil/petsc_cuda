@@ -22,12 +22,6 @@ int main( int argc, char *argv[] )
 {
 	/* error handling */
 	PetscErrorCode ierr; 
-
-	/* problem parameters */
-	int n = X_SIZE; /* (global) length of vector */
-	double q = QUOTIENT; /* quotient of the sequence */
-	
-	double theory_sum = 1.0/(1-q); /* theoretical sum of the geometrical sequence */
 	
 	/* initialize Petsc */
 	PetscInitialize(&argc,&argv,PETSC_NULL,PETSC_NULL);
@@ -46,6 +40,16 @@ int main( int argc, char *argv[] )
 	ierr = PetscPrintf(PETSC_COMM_WORLD,"-------------------------------\n"); CHKERRQ(ierr);
 
 /* CREATE GLOBAL VECTOR */
+	/* problem parameters */
+	int n = X_SIZE; /* (global) length of vector */
+	double q = QUOTIENT; /* quotient of the geometrical sequence */
+	double theory_sum = 1.0/(1-q); /* theoretical sum of the geometrical sequence */
+
+	ierr = PetscPrintf(PETSC_COMM_WORLD,"\n- Problem info: ----------------\n"); CHKERRQ(ierr);
+	ierr = PetscPrintf(PETSC_COMM_WORLD,"- n = %d\n",n); CHKERRQ(ierr);
+	ierr = PetscPrintf(PETSC_COMM_WORLD,"- q = %f\n",q); CHKERRQ(ierr);
+	ierr = PetscPrintf(PETSC_COMM_WORLD,"- n_trials = %d\n",N_TRIALS); CHKERRQ(ierr);
+	ierr = PetscPrintf(PETSC_COMM_WORLD,"-------------------------------\n"); CHKERRQ(ierr);
 
 	/* create layout vector to figure out how much this proc will compute */
 	Vec x; /* auxiliary vector */
