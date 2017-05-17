@@ -5,11 +5,12 @@
 /* for measuring computation time */
 #include "include/timer.h"
 #ifdef USE_CUDA
+	/* some cuda helpers */
 	#include "include/cuda_stuff.h"
 #endif
 
 /* parameters of the problem */
-#define X_SIZE 1000000
+#define X_SIZE 1e6
 #define QUOTIENT 0.5
 #define N_TRIALS 1000
 #define PRINT_VECTOR_CONTENT 0
@@ -25,6 +26,11 @@ int main( int argc, char *argv[] )
 	
 	/* initialize Petsc */
 	PetscInitialize(&argc,&argv,PETSC_NULL,PETSC_NULL);
+
+	/* warm up GPU - call empty kernel (see include/cuda_stuff.h) */
+	#ifdef USE_CUDA
+		warm_up_cuda();
+	#endif
 
 /* SAY HELLO TO WORLD - to check if everything is working */
 	

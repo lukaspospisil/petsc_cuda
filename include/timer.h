@@ -1,7 +1,7 @@
 /** @file timer.h
  *  @brief for measuring time
  *
- *  This file includes classes and functions for manipulation with timers (StackTimer and Timer).
+ *  This file includes classes and functions for manipulation with timers
  *
  *  @author Lukas Pospisil
  */

@@ -4,32 +4,15 @@
 
 /* for measuring computation time */
 #include "include/timer.h"
-
-/* if everything fails, than try the simplest Hello World */
-#define SAY_HELLO 0
-
-/* I used this for testing purposes - to print content of vectors - to see that everything is OK */
-#define PRINT_VECTOR_CONTENT 0
-
 #ifdef USE_CUDA
-	#include <../src/vec/vec/impls/seq/seqcuda/cudavecimpl.h>
+	/* some cuda helpers */
+	#include "include/cuda_stuff.h"
 #endif
 
-void say_hello() {
-	PetscErrorCode ierr;
-
-	/* give info about MPI */
-	int size, rank; /* size and rank of communicator */
-	MPI_Comm_rank(MPI_COMM_WORLD, &rank);
-	MPI_Comm_size(MPI_COMM_WORLD, &size);
-
-	/* Hello world! */
-	ierr = PetscPrintf(PETSC_COMM_WORLD,"- number of processors: %d\n",size); CHKERRV(ierr);
-	ierr = PetscSynchronizedPrintf(PETSC_COMM_WORLD," - hello from rank: %d\n",rank); CHKERRV(ierr);
-	ierr = PetscSynchronizedFlush(PETSC_COMM_WORLD,NULL); CHKERRV(ierr);
-	ierr = PetscPrintf(PETSC_COMM_WORLD,"-------------------------------\n"); CHKERRV(ierr);
-		
-}
+#define X_SIZE 1e6
+#define M 5
+#define N_TRIALS 1000
+#define PRINT_VECTOR_CONTENT 0
 
 void compute_dots(int n, int ntrials, int m, Vec *Mdots_vec, double *Mdots_val) {
 	PetscErrorCode ierr;
@@ -85,16 +68,22 @@ void compute_mdot(int n, int ntrials, int m, Vec *Mdots_vec, double *Mdots_val) 
 
 int main( int argc, char *argv[] )
 {
-	/* problem dimensions */
-	int n = 1e7; /* length of vectors */
-	int ntrials = 1e4; /* number of trials (to provide average time) */
-	int m = 5; /* number of dot-products (I am computing <v1,v1>, <v1,v2>, <v1,v3>, ... <v1,vm>) */
-	
-	PetscErrorCode ierr; /* PETSc error */
+	/* error handling */
+	PetscErrorCode ierr; 
 	
 	/* initialize Petsc */
 	PetscInitialize(&argc,&argv,PETSC_NULL,PETSC_NULL);
 
+	/* warm up GPU - call empty kernel (see include/cuda_stuff.h) */
+	#ifdef USE_CUDA
+		warm_up_cuda();
+	#endif
+
+	/* problem dimensions */
+	int n = X_SIZE; /* length of vectors */
+	int ntrials = N_TRIALS; /* number of trials (to provide average time) */
+	int m = M; /* number of dot-products (I am computing <v1,v1>, <v1,v2>, <v1,v3>, ... <v1,vm>) */
+	
 	/* print info about benchmark */
 	ierr = PetscPrintf(PETSC_COMM_WORLD,"This is MDOT benchmark.\n"); CHKERRQ(ierr);
 	ierr = PetscPrintf(PETSC_COMM_WORLD," - n          : %d\t\t(length of vectors)\n",n); CHKERRQ(ierr);
@@ -102,37 +91,34 @@ int main( int argc, char *argv[] )
 	ierr = PetscPrintf(PETSC_COMM_WORLD," - m          : %d\t\t(number of dot-products)\n",m); CHKERRQ(ierr);
 	ierr = PetscPrintf(PETSC_COMM_WORLD,"-------------------------------\n"); CHKERRQ(ierr);
 	
-/* SAY HELLO TO WORLD - to check if everything is working */
-	if(SAY_HELLO){
-		say_hello();
-	}
-
 	Timer mytimer;
 	mytimer.restart();
 	mytimer.start();
 
 	/* create first vector v1 (all other will have the same layout) */
-	Vec v1;
-	ierr = VecCreate(PETSC_COMM_WORLD,&v1); CHKERRQ(ierr);
-	ierr = VecSetSizes(v1,PETSC_DECIDE,n); CHKERRQ(ierr);
+	Vec x1;
+	ierr = VecCreate(PETSC_COMM_WORLD,&x1); CHKERRQ(ierr);
+	ierr = VecSetSizes(x1,PETSC_DECIDE,n); CHKERRQ(ierr);
 	#ifdef USE_CUDA
 		/* if we are using CUDA, it is a good idea to compute on GPU */
-		ierr = VecSetType(v1, VECMPICUDA); CHKERRQ(ierr);
+		ierr = VecSetType(x1, VECMPICUDA); CHKERRQ(ierr);
+	#else
+		ierr = VecSetType(x1, VECMPI); CHKERRQ(ierr);
 	#endif
-	ierr = VecSetFromOptions(v1); CHKERRQ(ierr);
+	ierr = VecSetFromOptions(x1); CHKERRQ(ierr);
 
 	/* some values (in my case I will try v_i = i) */
-	ierr = VecSet(v1,1.0); CHKERRQ(ierr);
+	ierr = VecSet(x1,1.0); CHKERRQ(ierr);
 
 	/* prepare other vectors, i.e. array of vectors (because of m=?) */
 	PetscScalar Mdots_val[m]; /* arrays of results of dot products */
 	Vec Mdots_vec[m]; /* array of vectors */
 
-	Mdots_vec[0] = v1; /* set first vector */
+	Mdots_vec[0] = x1; /* set first vector */
 
 	/* prepare other vectors */
 	for(int i=1;i<m;i++){
-		ierr = VecDuplicate(v1, &(Mdots_vec[i])); CHKERRQ(ierr); 
+		ierr = VecDuplicate(x1, &(Mdots_vec[i])); CHKERRQ(ierr); 
 		ierr = VecSet(Mdots_vec[i],(PetscScalar)(i+1)); CHKERRQ(ierr);
 	}
 

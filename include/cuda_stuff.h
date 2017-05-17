@@ -15,4 +15,16 @@ inline void gpuAssert(cudaError_t code, const char *file, int line, bool abort=t
 	}
 }
 
+__global__ void warm_up_kernel(){
+
+}
+
+void warm_up_cuda(){
+	PetscErrorCode ierr; 	
+	warm_up_kernel<<<1, 1>>>();
+	gpuErrchk( cudaDeviceSynchronize() );
+	ierr = PetscBarrier(NULL); CHKERRV(ierr);
+}
+
+
 #endif
