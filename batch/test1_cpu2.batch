@@ -17,4 +17,4 @@ source ~/soft/petsc_cuda/util/module_load_daint_mc
 export OMP_NUM_THREADS=1
 
 ## run the job
-srun -n 2 ./test2_mdot > batch_out/test1_cpu2.log
+srun -n 2 ./test1_sum > batch_out/test1_cpu2.log
