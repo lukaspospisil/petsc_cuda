@@ -9,6 +9,7 @@
 	#include "include/cuda_stuff.h"
 #endif
 
+/* X_SIZE=n*MPI_COMM_SIZE */
 #define X_SIZE 1e6
 #define N_TRIALS 1000
 #define PRINT_VECTOR_CONTENT 0
@@ -85,13 +86,23 @@ int main( int argc, char *argv[] )
 	ierr = PetscPrintf(PETSC_COMM_WORLD,"-------------------------------\n"); CHKERRQ(ierr);
 
 	/* now create some funny index set and make real dummy things */
+	int size, rank; /* rank of communicator */
+	MPI_Comm_size(MPI_COMM_WORLD, &size);
+	MPI_Comm_rank(MPI_COMM_WORLD, &rank);
 	IS myis;
 	Vec xsub;
-	ierr = ISCreateStride(PETSC_COMM_WORLD,n/2.0,rank,2, &myis); CHKERRQ(ierr);
+	ierr = ISCreateStride(PETSC_COMM_SELF,n/(double)size,rank,size, &myis); CHKERRQ(ierr);
 	ierr = VecGetSubVector(x, myis, &xsub); CHKERRQ(ierr);
 	ierr = VecSet(xsub,2.0); CHKERRQ(ierr); /* 2*orig */
 	ierr = VecRestoreSubVector(x, myis, &xsub); CHKERRQ(ierr);
 	ierr = ISDestroy(&myis); CHKERRQ(ierr);
+
+	/* maybe print the content of the vector ? */
+	if(PRINT_VECTOR_CONTENT){
+		ierr = PetscPrintf(PETSC_COMM_WORLD,"\n- Vector content: -------------\n"); CHKERRQ(ierr);
+		ierr = VecView(x, PETSC_VIEWER_STDOUT_WORLD); CHKERRQ(ierr);
+		ierr = PetscPrintf(PETSC_COMM_WORLD,"-------------------------------\n"); CHKERRQ(ierr);
+	}
 	
 	/* compute sum */
 	mysum = -1.0;
