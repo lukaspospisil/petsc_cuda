@@ -2,7 +2,7 @@
 
 ## sbatch settings
 #SBATCH --nodes=2
-#SBATCH --ntasks-per-node=36
+#SBATCH --ntasks-per-node=12
 #SBATCH --ntasks-per-core=1
 #SBATCH --threads-per-core=1
 #SBATCH --time=00:05:00
