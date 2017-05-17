@@ -16,5 +16,5 @@ source ~/soft/petsc_cuda/util/module_load_daint_mc
 ## set number of threads
 export OMP_NUM_THREADS=1
 
-## run the job
-srun -n 2 ./test1_sum > batch_out/test1_cpu2.log
+## run the job (12 MPI per node = 24)
+srun -n 24 ./test1_sum > batch_out/test1_cpu2.log
