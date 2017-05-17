@@ -113,6 +113,7 @@ int main( int argc, char *argv[] )
 	}
 	mytimer.stop();
 
+	double theory_sum = n;
 	ierr = PetscPrintf(PETSC_COMM_WORLD,"\n- SUM info: ----------------\n"); CHKERRQ(ierr);
 	ierr = PetscPrintf(PETSC_COMM_WORLD,"- theoretical sum       : %f\n",theory_sum); CHKERRQ(ierr);
 	ierr = PetscPrintf(PETSC_COMM_WORLD,"- computed sum          : %f\n",mysum); CHKERRQ(ierr);
