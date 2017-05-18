@@ -25,9 +25,9 @@ class GeneralVector : public VectorBase {
 		template<class ArgType> GeneralVector(ArgType arg) : VectorBase(arg) {
 		}	
 	
-		std::string who_am_I(){
-			return "I am GeneralVector";
-		}
+//		std::string who_am_I(){
+//			return "I am GeneralVector";
+//		}
 };
 
 class PetscVector {
@@ -128,6 +128,10 @@ int main( int argc, char *argv[] )
 	/* now the idea - get Vec from myvector */
 	Vec y = myvector->get_vector(); /* can be called because of inheritance */
 
+	/* second idea - change type of generalvector to petscvector and get vector */
+	GeneralVector<PetscVector> *myvector2 = dynamic_cast<GeneralVector<PetscVector> *>(myvector);
+	Vec z = myvector2->get_vector();
+
 
 	/* try to sum to see immediatelly if we are computing on CPU or GPU */
 	double mytime;
@@ -138,6 +142,8 @@ int main( int argc, char *argv[] )
 	mytime = test_sum(y);
 	ierr = PetscPrintf(PETSC_COMM_WORLD,"- 2. test: %f\n",mytime); CHKERRQ(ierr);
 	
+	mytime = test_sum(z);
+	ierr = PetscPrintf(PETSC_COMM_WORLD,"- 3. test: %f\n",mytime); CHKERRQ(ierr);
 
 	
 /*	
