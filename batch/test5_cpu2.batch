@@ -1,0 +1,20 @@
+#!/bin/bash -l
+
+## sbatch settings
+#SBATCH --nodes=2
+#SBATCH --ntasks-per-node=12
+#SBATCH --ntasks-per-core=1
+#SBATCH --threads-per-core=1
+#SBATCH --time=00:05:00
+#SBATCH --partition=normal
+#SBATCH --output=batch_out/test5_cpu2.%j.o
+#SBATCH --error=batch_out/test5_cpu2.%j.e
+
+## load modules
+source ~/soft/petsc_cuda/util/module_load_daint
+
+## set number of threads
+export OMP_NUM_THREADS=1
+
+## run the job (12 MPI per node = 24)
+srun -n 24 ./test5_pointer > batch_out/test5_cpu2.log
