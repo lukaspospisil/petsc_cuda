@@ -48,6 +48,20 @@ class PetscVector {
 	
 };
 
+template<class VectorBase>
+class Data {
+	private:
+		GeneralVector<VectorBase> *inner_vector;
+	public:
+		void set_inner_vector(GeneralVector<VectorBase> *new_inner_vector){
+			inner_vector = new_inner_vector;
+		}
+		
+		GeneralVector<VectorBase> *get_inner_vector() const {
+			return inner_vector;
+		}
+};
+
 
 double test_sum(Vec &x){
 	PetscErrorCode ierr; 
@@ -142,9 +156,20 @@ int main( int argc, char *argv[] )
 	mytime = test_sum(y);
 	ierr = PetscPrintf(PETSC_COMM_WORLD,"- 2. test: %f\n",mytime); CHKERRQ(ierr);
 	
+//	ierr = VecCUDACopyToGPU(z); CHKERRQ(ierr);
+	
 	mytime = test_sum(z);
 	ierr = PetscPrintf(PETSC_COMM_WORLD,"- 3. test: %f\n",mytime); CHKERRQ(ierr);
 
+	Data<PetscVector> *mydata = new Data<PetscVector>();
+	mydata->set_inner_vector(myvector2);
+
+	GeneralVector<PetscVector> *myvector3 = dynamic_cast<GeneralVector<PetscVector> *>(mydata->get_inner_vector());
+	Vec d = myvector3->get_vector();
+
+	mytime = test_sum(d);
+	ierr = PetscPrintf(PETSC_COMM_WORLD,"- 4. test: %f\n",mytime); CHKERRQ(ierr);
+	
 	
 /*	
 	 mything(x);
