@@ -1,3 +1,6 @@
+/* include c++ headers */
+#include <iostream>
+
 /* include petsc */
 #include "petsc.h"
 #include "mpi.h"
@@ -14,19 +17,37 @@
 #define N_TRIALS 1000
 #define PRINT_VECTOR_CONTENT 0
 
-class VecEnvelope {
+
+template<class VectorBase>
+class GeneralVector : public VectorBase {
+	public:
+		/* call original constructor with one argument */
+		template<class ArgType> GeneralVector(ArgType arg) : VectorBase(arg) {
+		}	
+	
+		std::string who_am_I(){
+			return "I am GeneralVector";
+		}
+};
+
+class PetscVector {
 	private:
 		Vec inner_vector;
 	public:
-		VecEnvelope(Vec new_inner_vector){
+		PetscVector(const Vec &new_inner_vector){
 			this->inner_vector = new_inner_vector;
 		}
 	
 		Vec get_vector() const{
 			return inner_vector;
 		}
+
+		std::string who_am_I(){
+			return "I am PetscVector";
+		}
 	
 };
+
 
 double test_sum(Vec &x){
 	PetscErrorCode ierr; 
@@ -97,8 +118,30 @@ int main( int argc, char *argv[] )
 		ierr = PetscPrintf(PETSC_COMM_WORLD,"-------------------------------\n"); CHKERRQ(ierr);
 	}
 
-	/* prepare instance of class */
-	VecEnvelope mything(x);
+/* perform some dummy things */
+	GeneralVector<PetscVector> *myvector = new GeneralVector<PetscVector>(x);
+
+	/* present yourself */
+	std::cout << std::endl;
+	std::cout << " - Who am I?: " << myvector->who_am_I() << std::endl;
+
+	/* now the idea - get Vec from myvector */
+	Vec y = myvector->get_vector(); /* can be called because of inheritance */
+
+
+	/* try to sum to see immediatelly if we are computing on CPU or GPU */
+	double mytime;
+
+	mytime = test_sum(x);
+	ierr = PetscPrintf(PETSC_COMM_WORLD,"- 1. test: %f\n",mytime); CHKERRQ(ierr);
+
+	mytime = test_sum(y);
+	ierr = PetscPrintf(PETSC_COMM_WORLD,"- 2. test: %f\n",mytime); CHKERRQ(ierr);
+	
+
+	
+/*	
+	 mything(x);
 	VecEnvelope *pointer_to_mything = &mything;
 	VecEnvelope *pointer_to_mything2 = new VecEnvelope(x);
 	double mytime;
@@ -117,6 +160,7 @@ int main( int argc, char *argv[] )
 	Vec x4 = pointer_to_mything2->get_vector();
 	mytime = test_sum(x4);
 	ierr = PetscPrintf(PETSC_COMM_WORLD,"- 4. test: %f\n",mytime); CHKERRQ(ierr);
+*/
 
 	/* destroy vector */
 	ierr = VecDestroy(&x); CHKERRQ(ierr);
